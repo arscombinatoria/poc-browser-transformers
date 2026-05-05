@@ -82,7 +82,10 @@ export function initApp(documentLike, options = {}) {
 
     const { task, model } = TASK_CONFIGS[taskKey];
     setStatus(`Loading model (${model})...`);
-    const pipe = await pipelineFactory(task, model);
+    const pipe = await pipelineFactory(task, model, {
+      dtype: 'q4',
+      device: 'webgpu'
+    });
     pipelineCache.set(taskKey, pipe);
     return pipe;
   }
