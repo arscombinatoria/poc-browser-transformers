@@ -25,6 +25,23 @@ jobs:
       - name: Generate coverage and badge
         run: npm run coverage:badge
 
+      - name: Normalize badge path for artifact upload
+        run: |
+          mkdir -p coverage
+          if [ -f coverage/badges.svg ]; then
+            echo "coverage/badges.svg already exists"
+            exit 0
+          fi
+
+          CANDIDATE="$(find . -maxdepth 4 -type f \( -name 'badges.svg' -o -name '*badge*.svg' \) | head -n 1)"
+          if [ -n "$CANDIDATE" ]; then
+            echo "Found badge at: $CANDIDATE"
+            cp "$CANDIDATE" coverage/badges.svg
+          else
+            echo "No badge file was generated"
+            exit 1
+          fi
+
       - name: Upload coverage badge artifact
         uses: actions/upload-artifact@v4
         with:
