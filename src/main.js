@@ -6,7 +6,7 @@ const TASK_CONFIGS = {
   generation: {
     label: 'Text Generation',
     task: 'text-generation',
-    model: 'Xenova/distilgpt2',
+    model: 'onnx-community/Qwen2.5-0.5B-Instruct',
     defaultInput: 'Once upon a time'
   },
   summarization: {
@@ -82,7 +82,10 @@ export function initApp(documentLike, options = {}) {
 
     const { task, model } = TASK_CONFIGS[taskKey];
     setStatus(`Loading model (${model})...`);
-    const pipe = await pipelineFactory(task, model);
+    const pipe = await pipelineFactory(task, model, {
+      dtype: 'q4',
+      device: 'webgpu'
+    });
     pipelineCache.set(taskKey, pipe);
     return pipe;
   }
