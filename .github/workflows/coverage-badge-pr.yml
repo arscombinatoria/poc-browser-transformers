@@ -34,6 +34,12 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+
+          if [ ! -f coverage/badges.svg ]; then
+            echo "coverage/badges.svg was not generated. Skipping commit."
+            exit 0
+          fi
+
           git add coverage/badges.svg
           if git diff --cached --quiet; then
             echo "No changes to commit"
