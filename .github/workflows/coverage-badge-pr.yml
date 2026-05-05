@@ -33,12 +33,12 @@ jobs:
 
       - name: Verify generated badge
         run: |
-          test -f badges/coverage.svg
-          ls -la badges
+          test -f coverage/coverage.svg
+          ls -la coverage
 
       - name: Upload coverage badge artifact
         uses: actions/upload-artifact@v7
         with:
           name: coverage-badge
-          path: badges/coverage.svg
+          path: coverage/coverage.svg
           if-no-files-found: error
