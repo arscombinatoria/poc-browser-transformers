@@ -92,4 +92,48 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.errorText.textContent).toBe('');
     expect(elements.statusText.textContent).toBe('Idle');
   });
+
+  it('入力が空の場合は推論せずエラーを表示する', async () => {
+    const { initApp } = await import('./main.js');
+    initApp(global.document);
+
+    elements.inputText.value = '    ';
+    await elements.runButton.listeners.click();
+
+    expect(pipelineMock).not.toHaveBeenCalled();
+    expect(elements.errorText.textContent).toBe('入力テキストを入力してください。');
+  });
+
+  it('pipelineが失敗した場合はエラー状態になりボタンを再有効化する', async () => {
+    pipelineMock.mockRejectedValue(new Error('load failed'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { initApp } = await import('./main.js');
+    initApp(global.document);
+
+    elements.inputText.value = 'hello';
+    await elements.runButton.listeners.click();
+
+    expect(elements.statusText.textContent).toBe('Error');
+    expect(elements.errorText.textContent).toContain('load failed');
+    expect(elements.runButton.disabled).toBe(false);
+    errorSpy.mockRestore();
+  });
+
+  it('同一タスク2回目の実行でpipelineキャッシュを利用する', async () => {
+    const pipe = vi.fn().mockResolvedValue([{ generated_text: 'ok' }]);
+    pipelineMock.mockResolvedValue(pipe);
+
+    const { initApp } = await import('./main.js');
+    initApp(global.document);
+
+    elements.inputText.value = 'first';
+    await elements.runButton.listeners.click();
+    elements.inputText.value = 'second';
+    await elements.runButton.listeners.click();
+
+    expect(pipelineMock).toHaveBeenCalledTimes(1);
+    expect(pipe).toHaveBeenCalledTimes(2);
+    expect(elements.statusText.textContent).toBe('Done');
+  });
 });
