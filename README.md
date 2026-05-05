@@ -1,5 +1,7 @@
 # Browser Transformers PoC
 
+![Coverage](https://img.shields.io/github/actions/workflow/status/tokiwous/poc-browser-transformers/coverage-badge-pr.yml?label=coverage%20badge)
+
 Vite + vanilla JavaScript + `@huggingface/transformers` を使った、ブラウザ内AI推論の最小PoCです。静的サイトとして GitHub Pages にデプロイできます。
 
 ## 概要
