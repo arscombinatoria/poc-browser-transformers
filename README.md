@@ -47,7 +47,7 @@ npm run preview
 
 `vite.config.js` は GitHub Pages のリポジトリ配下公開に合わせて、初期値を以下に設定しています。
 
-- `base: '/browser-transformers-poc/'`
+- `base: '/poc-browser-transformers/'`
 
 リポジトリ名を変更した場合は、この `base` を `/<新しいリポジトリ名>/` に変更してください。
 
