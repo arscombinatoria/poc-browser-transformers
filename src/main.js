@@ -24,6 +24,14 @@ const TASK_CONFIGS = {
   }
 };
 
+export function buildErrorMessage(error) {
+  return `エラーが発生しました: ${error?.message ?? String(error)}`;
+}
+
+export function formatDisplayResult(taskKey, result) {
+  return formatResult(taskKey, result);
+}
+
 export function initApp(documentLike) {
   const pipelineCache = new Map();
 
@@ -94,11 +102,11 @@ export function initApp(documentLike) {
       const pipe = await getPipeline(taskKey);
       setStatus('Running inference...');
       const result = await pipe(text);
-      setOutput(formatResult(taskKey, result));
+      setOutput(formatDisplayResult(taskKey, result));
       setStatus('Done');
     } catch (error) {
       console.error(error);
-      setError(`エラーが発生しました: ${error?.message ?? String(error)}`);
+      setError(buildErrorMessage(error));
       setStatus('Error');
     } finally {
       runButton.disabled = false;
@@ -124,4 +132,6 @@ export function initApp(documentLike) {
   applyDefaultInput();
 }
 
-initApp(document);
+if (typeof document !== 'undefined') {
+  initApp(document);
+}
