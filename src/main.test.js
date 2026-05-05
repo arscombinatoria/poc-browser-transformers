@@ -132,12 +132,12 @@ describe('main.js', () => {
     expect(elements.outputText.textContent).toBe('POSITIVE: 0.9877\nlabel_1: N/A')
   })
 
-  it('未知タスクの時はJSON文字列で表示する', async () => {
+  it('生成タスクでgenerated_textがない場合はJSON文字列で表示する', async () => {
     const inferMock = vi.fn().mockResolvedValue({ foo: 'bar' })
     pipelineMock.mockResolvedValue(inferMock)
     await import('./main.js')
 
-    elements.taskSelect.value = 'unknown'
+    elements.taskSelect.value = 'generation'
     elements.inputText.value = 'x'
     await elements.runButton.listeners.click()
 
