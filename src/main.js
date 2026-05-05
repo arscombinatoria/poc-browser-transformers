@@ -1,5 +1,5 @@
 import './style.css';
-import { pipeline } from '@huggingface/transformers';
+import { pipeline as defaultPipeline } from '@huggingface/transformers';
 import { formatResult } from './core/inference.js';
 
 const TASK_CONFIGS = {
@@ -32,8 +32,9 @@ export function formatDisplayResult(taskKey, result) {
   return formatResult(taskKey, result);
 }
 
-export function initApp(documentLike) {
+export function initApp(documentLike, options = {}) {
   const pipelineCache = new Map();
+  const pipelineFactory = options.pipelineFactory ?? globalThis.__TEST_PIPELINE__ ?? defaultPipeline;
 
   const taskSelect = documentLike.getElementById('taskSelect');
   const inputText = documentLike.getElementById('inputText');
@@ -81,7 +82,7 @@ export function initApp(documentLike) {
 
     const { task, model } = TASK_CONFIGS[taskKey];
     setStatus(`Loading model (${model})...`);
-    const pipe = await pipeline(task, model);
+    const pipe = await pipelineFactory(task, model);
     pipelineCache.set(taskKey, pipe);
     return pipe;
   }
