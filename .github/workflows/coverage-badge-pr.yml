@@ -11,10 +11,12 @@ jobs:
   build-coverage-badge:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -25,20 +27,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate coverage summary
+      - name: Generate coverage badge file
         run: npm run coverage
 
-      - name: Generate coverage badge
-        run: npx coverage-badges
-
-      - name: Verify generated badge
+      - name: Commit coverage badge
         run: |
-          test -f coverage/coverage.svg
-          ls -la coverage
-
-      - name: Upload coverage badge artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-badge
-          path: coverage/coverage.svg
-          if-no-files-found: error
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add coverage/badges.svg
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update coverage badge"
+            if ! git pull --rebase; then
+              git rebase --abort || true
+              echo "Skipping badge push because rebase conflict occurred."
+              exit 0
+            fi
+            if ! git push; then
+              echo "Skipping badge push because branch was updated concurrently."
+              exit 0
+            fi
+          fi

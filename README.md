@@ -1,5 +1,7 @@
 # Browser Transformers PoC
 
+![Coverage](coverage/badges.svg)
+
 Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラウザ内AI推論**の最小PoCです。サーバーサイドやAPIキーなしで、テキスト生成・要約・感情分類を 1 画面で試せます。
 
 ## 主な機能
@@ -51,8 +53,8 @@ npm run build        # 本番ビルド
 npm run preview      # 本番ビルドのローカル確認
 npm run test         # テスト実行
 npm run test:watch   # テスト監視
-npm run coverage     # カバレッジ(JSONサマリ生成)
-npm run coverage:badge # カバレッジ計測 + バッジ生成
+npm run coverage     # カバレッジ計測 + バッジ生成(coverage/badges.svg を更新)
+npm run coverage:badge # npm run coverage のエイリアス
 ```
 
 ## デプロイ（GitHub Pages）
