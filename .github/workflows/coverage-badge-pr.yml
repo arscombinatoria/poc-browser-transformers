@@ -36,8 +36,10 @@ jobs:
           git config user.email github-actions@github.com
 
           if [ ! -f coverage/badges.svg ]; then
-            echo "coverage/badges.svg was not generated. Skipping commit."
-            exit 0
+            echo "coverage/badges.svg was not generated."
+            echo "coverage outputs:"
+            ls -la coverage || true
+            exit 1
           fi
 
           git add coverage/badges.svg
