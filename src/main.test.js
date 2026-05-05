@@ -85,4 +85,93 @@ describe('main.js', () => {
     expect(pipelineMock).not.toHaveBeenCalled()
     expect(elements.errorText.textContent).toBe('入力テキストを入力してください。')
   })
+
+  it('キャッシュ済みpipelineを再利用する', async () => {
+    const inferMock = vi.fn().mockResolvedValue([{ generated_text: 'cached result' }])
+    pipelineMock.mockResolvedValue(inferMock)
+    await import('./main.js')
+
+    elements.inputText.value = 'first'
+    await elements.runButton.listeners.click()
+    elements.inputText.value = 'second'
+    await elements.runButton.listeners.click()
+
+    expect(pipelineMock).toHaveBeenCalledTimes(1)
+    expect(inferMock).toHaveBeenCalledTimes(2)
+    expect(elements.statusText.textContent).toBe('Done')
+  })
+
+  it('サマリータスクの出力を整形する', async () => {
+    const inferMock = vi.fn().mockResolvedValue([{ summary_text: 'short summary' }])
+    pipelineMock.mockResolvedValue(inferMock)
+    await import('./main.js')
+
+    elements.taskSelect.value = 'summarization'
+    elements.taskSelect.listeners.change()
+    elements.inputText.value = 'long text'
+    await elements.runButton.listeners.click()
+
+    expect(pipelineMock).toHaveBeenCalledWith('summarization', 'Xenova/distilbart-cnn-6-6')
+    expect(elements.outputText.textContent).toBe('short summary')
+  })
+
+  it('分類タスクの出力を整形する', async () => {
+    const inferMock = vi.fn().mockResolvedValue([
+      { label: 'POSITIVE', score: 0.98765 },
+      { score: 'bad score' }
+    ])
+    pipelineMock.mockResolvedValue(inferMock)
+    await import('./main.js')
+
+    elements.taskSelect.value = 'classification'
+    elements.taskSelect.listeners.change()
+    elements.inputText.value = 'great app'
+    await elements.runButton.listeners.click()
+
+    expect(pipelineMock).toHaveBeenCalledWith('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english')
+    expect(elements.outputText.textContent).toBe('POSITIVE: 0.9877\nlabel_1: N/A')
+  })
+
+  it('生成タスクでgenerated_textがない場合はJSON文字列で表示する', async () => {
+    const inferMock = vi.fn().mockResolvedValue({ foo: 'bar' })
+    pipelineMock.mockResolvedValue(inferMock)
+    await import('./main.js')
+
+    elements.taskSelect.value = 'generation'
+    elements.inputText.value = 'x'
+    await elements.runButton.listeners.click()
+
+    expect(elements.outputText.textContent).toContain('"foo": "bar"')
+  })
+
+  it('推論エラー時はエラーメッセージを表示する', async () => {
+    const err = new Error('boom')
+    pipelineMock.mockRejectedValue(err)
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    await import('./main.js')
+
+    elements.inputText.value = 'hello'
+    await elements.runButton.listeners.click()
+
+    expect(elements.statusText.textContent).toBe('Error')
+    expect(elements.errorText.textContent).toBe('エラーが発生しました: boom')
+    expect(elements.runButton.disabled).toBe(false)
+    spy.mockRestore()
+  })
+
+  it('クリアボタンで状態を初期化する', async () => {
+    await import('./main.js')
+
+    elements.inputText.value = 'filled'
+    elements.outputText.textContent = 'output'
+    elements.errorText.textContent = 'error'
+    elements.statusText.textContent = 'Done'
+
+    elements.clearButton.listeners.click()
+
+    expect(elements.inputText.value).toBe('')
+    expect(elements.outputText.textContent).toBe('')
+    expect(elements.errorText.textContent).toBe('')
+    expect(elements.statusText.textContent).toBe('Idle')
+  })
 })
