@@ -54,7 +54,6 @@ npm run preview      # 本番ビルドのローカル確認
 npm run test         # テスト実行
 npm run test:watch   # テスト監視
 npm run coverage     # カバレッジ計測 + バッジ生成(coverage/badges.svg を更新)
-npm run coverage:badge # npm run coverage のエイリアス
 ```
 
 ## デプロイ（GitHub Pages）
