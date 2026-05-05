@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser Transformers PoC</title>
+    <script type="module" src="/src/main.js" defer></script>
+  </head>
+  <body>
+    <main class="app">
+      <h1>Browser Transformers PoC</h1>
+      <p class="description">Vite + vanilla JavaScript + transformers.js で、ブラウザ内AI推論を試す最小PoCです。</p>
+
+      <section class="notice">
+        <h2>注意事項</h2>
+        <ul>
+          <li>初回実行時はモデルをダウンロードするため時間がかかります。</li>
+          <li>モデルサイズや回線状況、端末性能で処理時間は変わります。</li>
+          <li>推論はブラウザ内で実行され、入力テキストは外部LLM APIへ送信しません。</li>
+          <li>ただしモデルファイル取得のため Hugging Face Hub への通信は発生します。</li>
+        </ul>
+      </section>
+
+      <section class="controls">
+        <label for="taskSelect">タスク</label>
+        <select id="taskSelect"></select>
+
+        <label for="inputText">入力テキスト</label>
+        <textarea id="inputText" rows="8" placeholder="ここにテキストを入力してください"></textarea>
+
+        <div class="buttons">
+          <button id="runButton">実行</button>
+          <button id="clearButton" type="button">クリア</button>
+        </div>
+      </section>
+
+      <section class="status-area">
+        <h2>ステータス</h2>
+        <p id="statusText">Idle</p>
+      </section>
+
+      <section>
+        <h2>出力</h2>
+        <pre id="outputText" class="output"></pre>
+      </section>
+
+      <section>
+        <h2>エラー</h2>
+        <p id="errorText" class="error"></p>
+      </section>
+    </main>
+  </body>
+</html>
