@@ -8,8 +8,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage --coverage.reporter=json-summary",
-    "coverage:badge": "npm run coverage && coverage-badges -o coverage/badges.svg -s coverage/coverage-summary.json --style flat"
+    "coverage": "vitest run --coverage --coverage.reporter=json-summary --coverage.reportsDirectory=coverage",
+    "coverage:badge": "npm run coverage && coverage-badges"
   },
   "keywords": [],
   "author": "",
