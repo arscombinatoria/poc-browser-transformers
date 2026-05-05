@@ -99,8 +99,7 @@ function formatClassificationResult(result) {
 function formatResult(taskKey, result) {
   if (taskKey === 'generation') return formatGenerationResult(result);
   if (taskKey === 'summarization') return formatSummaryResult(result);
-  if (taskKey === 'classification') return formatClassificationResult(result);
-  return JSON.stringify(result, null, 2);
+  return formatClassificationResult(result);
 }
 
 async function runInference() {
