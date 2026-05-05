@@ -1,69 +1,83 @@
 # Browser Transformers PoC
 
-![Coverage](https://img.shields.io/github/actions/workflow/status/<owner>/<repo>/coverage-badge-pr.yml?branch=main&label=coverage%20badge)
+Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラウザ内AI推論**の最小PoCです。サーバーサイドやAPIキーなしで、テキスト生成・要約・感情分類を 1 画面で試せます。
 
-Vite + vanilla JavaScript + `@huggingface/transformers` を使った、ブラウザ内AI推論の最小PoCです。静的サイトとして GitHub Pages にデプロイできます。
+## 主な機能
 
-## 概要
-
-- サーバーサイドなし、APIキーなしでブラウザ上で推論を実行します。
-- 1ページUIで以下タスクを切り替えできます。
+- ブラウザのみで推論を実行（サーバーサイド不要）
+- 以下 3 タスクをUIから切り替え可能
   - Text Generation
   - Summarization
   - Sentiment Classification
-- 初回実行時にモデルを Hugging Face Hub から取得し、同一タスクの pipeline はメモリキャッシュを再利用します。
+- 初回実行時に Hugging Face Hub からモデルを取得
+- 同一タスクの pipeline はメモリキャッシュを再利用
 
-## 使用技術
+## 技術スタック
 
 - Node.js
 - Vite
-- vanilla JavaScript
+- Vanilla JavaScript
 - HTML / CSS
 - `@huggingface/transformers`
-- GitHub Actions
-- GitHub Pages
+- Vitest
+- GitHub Actions / GitHub Pages
 
-## ローカル実行方法
+## セットアップ
+
+### 前提
+
+- Node.js 18 以上（推奨: LTS）
+- npm
+
+### インストール
 
 ```bash
 npm install
+```
+
+### 開発サーバー起動
+
+```bash
 npm run dev
 ```
 
-ブラウザで表示されたローカルURLを開いて動作確認してください。
+表示されたローカルURLをブラウザで開いて確認してください。
 
-本番ビルド確認:
+## 利用可能な npm scripts
 
 ```bash
-npm run build
-npm run preview
+npm run dev          # 開発サーバー
+npm run build        # 本番ビルド
+npm run preview      # 本番ビルドのローカル確認
+npm run test         # テスト実行
+npm run test:watch   # テスト監視
+npm run coverage     # カバレッジ(JSONサマリ生成)
+npm run coverage:badge # カバレッジ計測 + バッジ生成
 ```
 
-## GitHub Pagesへのデプロイ方法
+## デプロイ（GitHub Pages）
 
-1. このリポジトリの `main` ブランチへ push します。
-2. `.github/workflows/deploy.yml` が起動してビルド・デプロイします。
-3. GitHub の Pages 設定で Build and deployment の Source は **GitHub Actions** を選択します。
+1. `main` ブランチへ push
+2. `.github/workflows/deploy.yml` でビルド＆デプロイ
+3. GitHub Pages の **Build and deployment > Source** を **GitHub Actions** に設定
 
-### `base` 設定について
+### `vite.config.js` の `base` 設定
 
-`vite.config.js` は GitHub Pages のリポジトリ配下公開に合わせて、初期値を以下に設定しています。
+このリポジトリは GitHub Pages のサブパス公開を想定しています。
 
-- `base: '/poc-browser-transformers/'`
+- 現在値: `base: '/poc-browser-transformers/'`
 
-リポジトリ名を変更した場合は、この `base` を `/<新しいリポジトリ名>/` に変更してください。
+リポジトリ名を変更した場合は、`/<新しいリポジトリ名>/` に更新してください。
 
 ## モデル取得とプライバシー
 
-- モデル本体はアプリに同梱せず、実行時に Hugging Face Hub から取得します。
-- 初回ロードはダウンロードが発生するため時間がかかります。
-- サーバーサイドやAPIキーは不要です。
-- 推論処理はブラウザ内で実行され、入力テキストを外部LLM APIへ送信しません。
-- ただし、モデルファイル取得のため Hugging Face Hub への通信は発生します。
+- モデルはアプリに同梱せず、実行時に Hugging Face Hub から取得
+- 推論処理はブラウザ内で完結し、入力テキストを外部LLM APIへ送信しない
+- ただしモデルダウンロードのため、Hugging Face Hub への通信は発生
 
 ## 既知の制約
 
-- ブラウザや端末性能によっては推論が遅くなる場合があります。
-- 大きな入力テキストはメモリ不足やタイムアウトで失敗する場合があります。
-- モデル品質はPoC用途であり、タスク品質の保証はありません。
-- 初回ロード時はモデルダウンロードによりネットワーク通信量が大きくなる場合があります。
+- 端末性能やブラウザ実装差により推論速度が大きく変わる
+- 初回ロード時はモデル取得に時間と通信量が必要
+- 入力サイズが大きい場合、メモリ不足やタイムアウトが発生する可能性あり
+- モデル品質はPoC用途（本番品質は未保証）
