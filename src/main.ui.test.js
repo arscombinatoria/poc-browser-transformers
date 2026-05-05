@@ -72,7 +72,7 @@ describe('main.js initApp (UI integration)', () => {
     elements.inputText.value = 'hello';
     await elements.runButton.listeners.click();
 
-    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'Xenova/distilgpt2');
+    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct');
     expect(pipe).toHaveBeenCalledWith('hello');
     expect(elements.outputText.textContent).toBe('ok');
     expect(elements.statusText.textContent).toBe('Done');
