@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage --coverage.reporter=json-summary && coverage-badges -o coverage -s coverage/coverage-summary.json --style flat && mv coverage/coverage.svg coverage/badges.svg"
+    "coverage": "vitest run --coverage --coverage.reporter=json-summary && coverage-badges -o coverage -s coverage/coverage-summary.json --style flat && mv coverage/coverage.svg coverage/badges.svg",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +25,7 @@
     "@vitest/coverage-v8": "^4.1.5",
     "coverage-badges": "^1.0.7",
     "jsdom": "^29.1.1",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "@playwright/test": "^1.55.0"
   }
 }
