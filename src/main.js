@@ -6,7 +6,7 @@ const TASK_CONFIGS = {
   generation: {
     label: 'Text Generation',
     task: 'text-generation',
-    model: 'Xenova/distilgpt2',
+    model: 'onnx-community/Qwen2.5-0.5B-Instruct',
     defaultInput: 'Once upon a time'
   },
   summarization: {
