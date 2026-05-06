@@ -54,7 +54,7 @@ describe('main.js initApp (UI integration)', () => {
     const { initApp } = await import('./main.js');
     initApp(global.document);
 
-    expect(elements.taskSelect.options).toHaveLength(6);
+    expect(elements.taskSelect.options).toHaveLength(8);
     expect(elements.taskSelect.value).toBe('generation');
     expect(elements.inputText.placeholder).toBe('Once upon a time');
     expect(elements.runButton.listeners.click).toBeTypeOf('function');

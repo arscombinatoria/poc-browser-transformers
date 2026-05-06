@@ -9,6 +9,12 @@ const TASK_CONFIGS = {
     model: 'onnx-community/Qwen2.5-0.5B-Instruct',
     defaultInput: 'Once upon a time'
   },
+  generationSmol: {
+    label: 'Text Generation',
+    task: 'text-generation',
+    model: 'HuggingFaceTB/SmolLM2-360M-Instruct',
+    defaultInput: 'Once upon a time'
+  },
   summarization: {
     label: 'Summarization',
     task: 'summarization',
