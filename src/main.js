@@ -15,6 +15,12 @@ const TASK_CONFIGS = {
     model: 'HuggingFaceTB/SmolLM2-360M-Instruct',
     defaultInput: 'Once upon a time'
   },
+  generationGemma: {
+    label: 'Text Generation',
+    task: 'text-generation',
+    model: 'google/gemma-3-270m-it',
+    defaultInput: 'Once upon a time'
+  },
   summarization: {
     label: 'Summarization',
     task: 'summarization',
