@@ -38,6 +38,10 @@ export function formatDisplayResult(taskKey, result) {
   return formatResult(taskKey, result);
 }
 
+export function formatElapsedSeconds(milliseconds) {
+  return (milliseconds / 1000).toFixed(2);
+}
+
 export function initApp(documentLike, options = {}) {
   const pipelineCache = new Map();
   const pipelineFactory = options.pipelineFactory ?? globalThis.__TEST_PIPELINE__ ?? defaultPipeline;
@@ -111,9 +115,11 @@ export function initApp(documentLike, options = {}) {
     try {
       const pipe = await getPipeline(taskKey);
       setStatus('Running inference...');
+      const startTime = globalThis.performance?.now?.() ?? Date.now();
       const result = await pipe(text);
+      const elapsedMilliseconds = (globalThis.performance?.now?.() ?? Date.now()) - startTime;
       setOutput(formatDisplayResult(taskKey, result));
-      setStatus('Done');
+      setStatus(`Done (${formatElapsedSeconds(elapsedMilliseconds)}s)`);
     } catch (error) {
       console.error(error);
       setError(buildErrorMessage(error));
