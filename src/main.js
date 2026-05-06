@@ -47,6 +47,7 @@ export function initApp(documentLike, options = {}) {
   const pipelineFactory = options.pipelineFactory ?? globalThis.__TEST_PIPELINE__ ?? defaultPipeline;
 
   const taskSelect = documentLike.getElementById('taskSelect');
+  const dtypeSelect = documentLike.getElementById('dtypeSelect');
   const inputText = documentLike.getElementById('inputText');
   const runButton = documentLike.getElementById('runButton');
   const clearButton = documentLike.getElementById('clearButton');
@@ -84,25 +85,35 @@ export function initApp(documentLike, options = {}) {
     inputText.placeholder = TASK_CONFIGS[key].defaultInput;
   }
 
-  async function getPipeline(taskKey) {
-    if (pipelineCache.has(taskKey)) {
+  function getCurrentDtype() {
+    return dtypeSelect?.value || 'q4';
+  }
+
+  function getPipelineCacheKey(taskKey, dtype) {
+    return `${taskKey}:${dtype}`;
+  }
+
+  async function getPipeline(taskKey, dtype) {
+    const cacheKey = getPipelineCacheKey(taskKey, dtype);
+    if (pipelineCache.has(cacheKey)) {
       setStatus('Using cached pipeline...');
-      return pipelineCache.get(taskKey);
+      return pipelineCache.get(cacheKey);
     }
 
     const { task, model } = TASK_CONFIGS[taskKey];
     setStatus(`Loading model (${model})...`);
     const pipe = await pipelineFactory(task, model, {
-      dtype: 'q4',
+      dtype,
       device: 'webgpu'
     });
-    pipelineCache.set(taskKey, pipe);
+    pipelineCache.set(cacheKey, pipe);
     return pipe;
   }
 
   async function runInference() {
     const text = inputText.value.trim();
     const taskKey = getCurrentTaskKey();
+    const dtype = getCurrentDtype();
     if (!text) {
       setError('入力テキストを入力してください。');
       return;
@@ -113,7 +124,7 @@ export function initApp(documentLike, options = {}) {
     setOutput('');
 
     try {
-      const pipe = await getPipeline(taskKey);
+      const pipe = await getPipeline(taskKey, dtype);
       setStatus('Running inference...');
       const startTime = globalThis.performance?.now?.() ?? Date.now();
       const result = await pipe(text);
