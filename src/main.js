@@ -18,7 +18,7 @@ const TASK_CONFIGS = {
   generationGemma: {
     label: 'Text Generation',
     task: 'text-generation',
-    model: 'google/gemma-3-270m-it',
+    model: 'onnx-community/gemma-3-270m-it-ONNX',
     defaultInput: 'Once upon a time'
   },
   summarization: {
