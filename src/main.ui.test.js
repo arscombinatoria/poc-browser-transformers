@@ -33,6 +33,8 @@ describe('main.js initApp (UI integration)', () => {
     elements = {
       taskSelect: createElementStub(),
       dtypeSelect: createElementStub('q4'),
+      maxNewTokens: createElementStub('128'),
+      maxNewTokensValue: createElementStub(''),
       inputText: createElementStub(),
       runButton: createElementStub(),
       clearButton: createElementStub(),
@@ -62,6 +64,8 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.runButton.listeners.click).toBeTypeOf('function');
     expect(elements.clearButton.listeners.click).toBeTypeOf('function');
     expect(elements.taskSelect.listeners.change).toBeTypeOf('function');
+    expect(elements.maxNewTokens.listeners.input).toBeTypeOf('function');
+    expect(elements.maxNewTokensValue.textContent).toBe('128');
   });
 
   it('イベントフロー: clickで推論実行、change/clearで表示をリセットする', async () => {
@@ -78,7 +82,7 @@ describe('main.js initApp (UI integration)', () => {
       dtype: 'q4',
       device: 'webgpu'
     });
-    expect(pipe).toHaveBeenCalledWith('hello');
+    expect(pipe).toHaveBeenCalledWith('hello', { max_new_tokens: 128 });
     expect(elements.outputText.textContent).toBe('ok');
     expect(elements.statusText.textContent).toMatch(/^Done \(\d+\.\d{2}s\)$/);
 

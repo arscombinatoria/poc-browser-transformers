@@ -49,6 +49,8 @@ export function initApp(documentLike, options = {}) {
   const taskSelect = documentLike.getElementById('taskSelect');
   const dtypeSelect = documentLike.getElementById('dtypeSelect');
   const inputText = documentLike.getElementById('inputText');
+  const maxNewTokensInput = documentLike.getElementById('maxNewTokens');
+  const maxNewTokensValue = documentLike.getElementById('maxNewTokensValue');
   const runButton = documentLike.getElementById('runButton');
   const clearButton = documentLike.getElementById('clearButton');
   const statusText = documentLike.getElementById('statusText');
@@ -93,6 +95,16 @@ export function initApp(documentLike, options = {}) {
     return `${taskKey}:${dtype}`;
   }
 
+  function getMaxNewTokens() {
+    return Number(maxNewTokensInput?.value || 128);
+  }
+
+  function syncMaxNewTokensLabel() {
+    if (maxNewTokensValue) {
+      maxNewTokensValue.textContent = String(getMaxNewTokens());
+    }
+  }
+
   async function getPipeline(taskKey, dtype) {
     const cacheKey = getPipelineCacheKey(taskKey, dtype);
     if (pipelineCache.has(cacheKey)) {
@@ -127,7 +139,10 @@ export function initApp(documentLike, options = {}) {
       const pipe = await getPipeline(taskKey, dtype);
       setStatus('Running inference...');
       const startTime = globalThis.performance?.now?.() ?? Date.now();
-      const result = await pipe(text);
+      const generationOptions = taskKey.startsWith('generation')
+        ? { max_new_tokens: getMaxNewTokens() }
+        : undefined;
+      const result = await pipe(text, generationOptions);
       const elapsedMilliseconds = (globalThis.performance?.now?.() ?? Date.now()) - startTime;
       setOutput(formatDisplayResult(taskKey, result));
       setStatus(`Done (${formatElapsedSeconds(elapsedMilliseconds)}s)`);
@@ -153,10 +168,12 @@ export function initApp(documentLike, options = {}) {
     setStatus('Idle');
     applyDefaultInput();
   });
+  maxNewTokensInput?.addEventListener('input', syncMaxNewTokensLabel);
 
   populateTaskSelect();
   taskSelect.value = 'generation';
   applyDefaultInput();
+  syncMaxNewTokensLabel();
 }
 
 if (typeof document !== 'undefined') {
