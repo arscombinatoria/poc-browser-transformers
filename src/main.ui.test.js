@@ -78,7 +78,7 @@ describe('main.js initApp (UI integration)', () => {
     });
     expect(pipe).toHaveBeenCalledWith('hello');
     expect(elements.outputText.textContent).toBe('ok');
-    expect(elements.statusText.textContent).toBe('Done');
+    expect(elements.statusText.textContent).toMatch(/^Done \\(\d+\.\d{2}s\\)$/);
 
     elements.outputText.textContent = 'dirty';
     elements.errorText.textContent = 'dirty';
@@ -137,6 +137,6 @@ describe('main.js initApp (UI integration)', () => {
 
     expect(pipelineMock).toHaveBeenCalledTimes(1);
     expect(pipe).toHaveBeenCalledTimes(2);
-    expect(elements.statusText.textContent).toBe('Done');
+    expect(elements.statusText.textContent).toMatch(/^Done \\(\d+\.\d{2}s\\)$/);
   });
 });

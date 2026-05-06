@@ -111,9 +111,11 @@ export function initApp(documentLike, options = {}) {
     try {
       const pipe = await getPipeline(taskKey);
       setStatus('Running inference...');
+      const startTime = performance.now();
       const result = await pipe(text);
+      const elapsedSec = ((performance.now() - startTime) / 1000).toFixed(2);
       setOutput(formatDisplayResult(taskKey, result));
-      setStatus('Done');
+      setStatus(`Done (${elapsedSec}s)`);
     } catch (error) {
       console.error(error);
       setError(buildErrorMessage(error));
