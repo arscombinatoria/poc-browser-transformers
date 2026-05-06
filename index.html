@@ -26,7 +26,8 @@
         <label for="taskSelect">タスク</label>
         <select id="taskSelect"></select>
 
-        <label for="dtypeSelect">dtype</label>
+        <label for="dtypeSelect">dtype（量子化・精度の設定）</label>
+        <p class="field-help">推論時の計算精度です。軽さ重視なら q4 / q8、品質重視なら fp16 / fp32 を選びます。</p>
         <select id="dtypeSelect">
           <option value="q4" selected>q4</option>
           <option value="q8">q8</option>
@@ -34,7 +35,8 @@
           <option value="fp32">fp32</option>
         </select>
 
-        <label for="maxNewTokens">max_new_tokens: <span id="maxNewTokensValue">128</span></label>
+        <label for="maxNewTokens">max_new_tokens（追加生成トークン数）: <span id="maxNewTokensValue">128</span></label>
+        <p class="field-help">モデルが新しく生成する最大トークン数です。大きいほど長文を生成できますが、時間は長くなります。</p>
         <input id="maxNewTokens" type="range" min="16" max="1024" step="16" value="128" />
 
         <label for="inputText">入力テキスト</label>
