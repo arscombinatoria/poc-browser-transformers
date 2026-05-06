@@ -49,6 +49,8 @@ export function initApp(documentLike, options = {}) {
   const taskSelect = documentLike.getElementById('taskSelect');
   const dtypeSelect = documentLike.getElementById('dtypeSelect');
   const inputText = documentLike.getElementById('inputText');
+  const maxNewTokensSlider = documentLike.getElementById('maxNewTokens');
+  const maxNewTokensValue = documentLike.getElementById('maxNewTokensValue');
   const runButton = documentLike.getElementById('runButton');
   const clearButton = documentLike.getElementById('clearButton');
   const statusText = documentLike.getElementById('statusText');
@@ -89,12 +91,22 @@ export function initApp(documentLike, options = {}) {
     return dtypeSelect?.value || 'q4';
   }
 
-  function getPipelineCacheKey(taskKey, dtype) {
-    return `${taskKey}:${dtype}`;
+  function getMaxNewTokens() {
+    return Number(maxNewTokensSlider?.value ?? 64);
   }
 
-  async function getPipeline(taskKey, dtype) {
-    const cacheKey = getPipelineCacheKey(taskKey, dtype);
+  function syncMaxNewTokensLabel() {
+    if (maxNewTokensValue) {
+      maxNewTokensValue.textContent = String(getMaxNewTokens());
+    }
+  }
+
+  function getPipelineCacheKey(taskKey, dtype, maxNewTokens) {
+    return `${taskKey}:${dtype}:${maxNewTokens}`;
+  }
+
+  async function getPipeline(taskKey, dtype, maxNewTokens) {
+    const cacheKey = getPipelineCacheKey(taskKey, dtype, maxNewTokens);
     if (pipelineCache.has(cacheKey)) {
       setStatus('Using cached pipeline...');
       return pipelineCache.get(cacheKey);
@@ -104,7 +116,8 @@ export function initApp(documentLike, options = {}) {
     setStatus(`Loading model (${model})...`);
     const pipe = await pipelineFactory(task, model, {
       dtype,
-      device: 'webgpu'
+      device: 'webgpu',
+      max_new_tokens: maxNewTokens
     });
     pipelineCache.set(cacheKey, pipe);
     return pipe;
@@ -114,6 +127,7 @@ export function initApp(documentLike, options = {}) {
     const text = inputText.value.trim();
     const taskKey = getCurrentTaskKey();
     const dtype = getCurrentDtype();
+    const maxNewTokens = getMaxNewTokens();
     if (!text) {
       setError('入力テキストを入力してください。');
       return;
@@ -124,7 +138,7 @@ export function initApp(documentLike, options = {}) {
     setOutput('');
 
     try {
-      const pipe = await getPipeline(taskKey, dtype);
+      const pipe = await getPipeline(taskKey, dtype, maxNewTokens);
       setStatus('Running inference...');
       const startTime = globalThis.performance?.now?.() ?? Date.now();
       const result = await pipe(text);
@@ -147,6 +161,7 @@ export function initApp(documentLike, options = {}) {
     setError('');
     setStatus('Idle');
   });
+  maxNewTokensSlider?.addEventListener('input', syncMaxNewTokensLabel);
   taskSelect.addEventListener('change', () => {
     setOutput('');
     setError('');
@@ -157,6 +172,7 @@ export function initApp(documentLike, options = {}) {
   populateTaskSelect();
   taskSelect.value = 'generation';
   applyDefaultInput();
+  syncMaxNewTokensLabel();
 }
 
 if (typeof document !== 'undefined') {

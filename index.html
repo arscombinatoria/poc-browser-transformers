@@ -34,6 +34,9 @@
           <option value="fp32">fp32</option>
         </select>
 
+        <label for="maxNewTokens">max_new_tokens: <span id="maxNewTokensValue">64</span></label>
+        <input id="maxNewTokens" type="range" min="16" max="512" step="16" value="64" />
+
         <label for="inputText">入力テキスト</label>
         <textarea id="inputText" rows="8" placeholder="ここにテキストを入力してください"></textarea>
 

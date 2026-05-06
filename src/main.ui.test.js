@@ -34,6 +34,8 @@ describe('main.js initApp (UI integration)', () => {
       taskSelect: createElementStub(),
       dtypeSelect: createElementStub('q4'),
       inputText: createElementStub(),
+      maxNewTokens: createElementStub('64'),
+      maxNewTokensValue: createElementStub(''),
       runButton: createElementStub(),
       clearButton: createElementStub(),
       statusText: createElementStub(''),
@@ -59,6 +61,8 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.taskSelect.value).toBe('generation');
     expect(elements.inputText.placeholder).toBe('Once upon a time');
     expect(elements.dtypeSelect.value).toBe('q4');
+    expect(elements.maxNewTokensValue.textContent).toBe('64');
+    expect(elements.maxNewTokens.listeners.input).toBeTypeOf('function');
     expect(elements.runButton.listeners.click).toBeTypeOf('function');
     expect(elements.clearButton.listeners.click).toBeTypeOf('function');
     expect(elements.taskSelect.listeners.change).toBeTypeOf('function');
@@ -76,7 +80,8 @@ describe('main.js initApp (UI integration)', () => {
 
     expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
       dtype: 'q4',
-      device: 'webgpu'
+      device: 'webgpu',
+      max_new_tokens: 64
     });
     expect(pipe).toHaveBeenCalledWith('hello');
     expect(elements.outputText.textContent).toBe('ok');
@@ -143,11 +148,34 @@ describe('main.js initApp (UI integration)', () => {
     expect(pipelineMock).toHaveBeenCalledTimes(2);
     expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
       dtype: 'q4',
-      device: 'webgpu'
+      device: 'webgpu',
+      max_new_tokens: 64
     });
     expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
       dtype: 'fp16',
-      device: 'webgpu'
+      device: 'webgpu',
+      max_new_tokens: 64
+    });
+  });
+
+
+  it('max_new_tokensスライダーの値をpipelineFactoryへ渡す', async () => {
+    const pipe = vi.fn().mockResolvedValue([{ generated_text: 'ok' }]);
+    pipelineMock.mockResolvedValue(pipe);
+
+    const { initApp } = await import('./main.js');
+    initApp(global.document);
+
+    elements.maxNewTokens.value = '128';
+    elements.maxNewTokens.listeners.input();
+    elements.inputText.value = 'hello';
+    await elements.runButton.listeners.click();
+
+    expect(elements.maxNewTokensValue.textContent).toBe('128');
+    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+      dtype: 'q4',
+      device: 'webgpu',
+      max_new_tokens: 128
     });
   });
 
