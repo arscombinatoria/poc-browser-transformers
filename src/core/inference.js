@@ -20,7 +20,13 @@ export function formatClassificationResult(result) {
 }
 
 export function formatResult(taskKey, result) {
-  if (taskKey === 'generation' || taskKey === 'generationSmol') return formatGenerationResult(result);
+  if (
+    taskKey === 'generation' ||
+    taskKey === 'generationSmol' ||
+    taskKey === 'generationBonsai'
+  ) {
+    return formatGenerationResult(result);
+  }
   if (taskKey === 'summarization') return formatSummaryResult(result);
   return formatClassificationResult(result);
 }
