@@ -31,6 +31,7 @@ describe('inference formatters', () => {
   it('formatResultはtaskKeyに応じて処理を切り替える', () => {
     expect(formatResult('generation', [{ generated_text: 'gen' }])).toBe('gen');
     expect(formatResult('generationSmol', [{ generated_text: 'smol gen' }])).toBe('smol gen');
+    expect(formatResult('generationBonsai', [{ generated_text: 'bonsai gen' }])).toBe('bonsai gen');
     expect(formatResult('summarization', [{ summary_text: 'sum' }])).toBe('sum');
     expect(formatResult('classification', [{ label: 'NEGATIVE', score: 0.1 }])).toBe('NEGATIVE: 0.1000');
   });
