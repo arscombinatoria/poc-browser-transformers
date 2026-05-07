@@ -15,6 +15,12 @@ const TASK_CONFIGS = {
     model: 'HuggingFaceTB/SmolLM2-360M-Instruct',
     defaultInput: 'Once upon a time'
   },
+  generationBonsai: {
+    label: 'Text Generation',
+    task: 'text-generation',
+    model: 'onnx-community/Bonsai-1.7B-ONNX',
+    defaultInput: 'Once upon a time'
+  },
   summarization: {
     label: 'Summarization',
     task: 'summarization',
