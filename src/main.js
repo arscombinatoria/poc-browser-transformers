@@ -1,5 +1,5 @@
 import './style.css';
-import { pipeline as defaultPipeline } from '@huggingface/transformers';
+import { TextStreamer, pipeline as defaultPipeline } from '@huggingface/transformers';
 import { formatResult } from './core/inference.js';
 
 const TASK_CONFIGS = {
@@ -151,9 +151,23 @@ export function initApp(documentLike, options = {}) {
       const pipe = await getPipeline(taskKey, dtype, device);
       setStatus('Running inference...');
       const startTime = globalThis.performance?.now?.() ?? Date.now();
-      const generationOptions = taskKey.startsWith('generation')
-        ? { max_new_tokens: getMaxNewTokens() }
-        : undefined;
+      let generationOptions;
+      if (taskKey.startsWith('generation')) {
+        const streamedChunks = [];
+        const streamer = new TextStreamer(pipe.tokenizer, {
+          skip_prompt: true,
+          callback_function: (chunk) => {
+            streamedChunks.push(chunk);
+            setOutput(streamedChunks.join(''));
+          }
+        });
+
+        generationOptions = {
+          max_new_tokens: getMaxNewTokens(),
+          streamer
+        };
+      }
+
       const result = await pipe(text, generationOptions);
       const elapsedMilliseconds = (globalThis.performance?.now?.() ?? Date.now()) - startTime;
       setOutput(formatDisplayResult(taskKey, result));
