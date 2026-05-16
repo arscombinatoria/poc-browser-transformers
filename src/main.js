@@ -54,6 +54,7 @@ export function initApp(documentLike, options = {}) {
 
   const taskSelect = documentLike.getElementById('taskSelect');
   const dtypeSelect = documentLike.getElementById('dtypeSelect');
+  const deviceSelect = documentLike.getElementById('deviceSelect');
   const inputText = documentLike.getElementById('inputText');
   const maxNewTokensInput = documentLike.getElementById('maxNewTokens');
   const maxNewTokensValue = documentLike.getElementById('maxNewTokensValue');
@@ -97,8 +98,12 @@ export function initApp(documentLike, options = {}) {
     return dtypeSelect?.value || 'q4';
   }
 
-  function getPipelineCacheKey(taskKey, dtype) {
-    return `${taskKey}:${dtype}`;
+  function getCurrentDevice() {
+    return deviceSelect?.value || 'webgpu';
+  }
+
+  function getPipelineCacheKey(taskKey, dtype, device) {
+    return `${taskKey}:${dtype}:${device}`;
   }
 
   function getMaxNewTokens() {
@@ -111,8 +116,8 @@ export function initApp(documentLike, options = {}) {
     }
   }
 
-  async function getPipeline(taskKey, dtype) {
-    const cacheKey = getPipelineCacheKey(taskKey, dtype);
+  async function getPipeline(taskKey, dtype, device) {
+    const cacheKey = getPipelineCacheKey(taskKey, dtype, device);
     if (pipelineCache.has(cacheKey)) {
       setStatus('Using cached pipeline...');
       return pipelineCache.get(cacheKey);
@@ -122,7 +127,7 @@ export function initApp(documentLike, options = {}) {
     setStatus(`Loading model (${model})...`);
     const pipe = await pipelineFactory(task, model, {
       dtype,
-      device: 'webgpu'
+      device
     });
     pipelineCache.set(cacheKey, pipe);
     return pipe;
@@ -132,6 +137,7 @@ export function initApp(documentLike, options = {}) {
     const text = inputText.value.trim();
     const taskKey = getCurrentTaskKey();
     const dtype = getCurrentDtype();
+    const device = getCurrentDevice();
     if (!text) {
       setError('入力テキストを入力してください。');
       return;
@@ -142,7 +148,7 @@ export function initApp(documentLike, options = {}) {
     setOutput('');
 
     try {
-      const pipe = await getPipeline(taskKey, dtype);
+      const pipe = await getPipeline(taskKey, dtype, device);
       setStatus('Running inference...');
       const startTime = globalThis.performance?.now?.() ?? Date.now();
       const generationOptions = taskKey.startsWith('generation')
