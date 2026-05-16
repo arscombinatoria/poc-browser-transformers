@@ -35,6 +35,13 @@
           <option value="fp32">fp32</option>
         </select>
 
+        <label for="deviceSelect">実行バックエンド</label>
+        <p class="field-help">推論実行に使うバックエンドを選択します。対応端末では WebGPU、互換性重視なら WASM を選びます。</p>
+        <select id="deviceSelect">
+          <option value="webgpu" selected>WebGPU</option>
+          <option value="wasm">WASM</option>
+        </select>
+
         <label for="maxNewTokens">max_new_tokens（追加生成トークン数）: <span id="maxNewTokensValue">128</span></label>
         <p class="field-help">モデルが新しく生成する最大トークン数です。大きいほど長文を生成できますが、時間は長くなります。</p>
         <input id="maxNewTokens" type="range" min="16" max="1024" step="16" value="128" />

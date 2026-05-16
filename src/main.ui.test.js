@@ -33,6 +33,7 @@ describe('main.js initApp (UI integration)', () => {
     elements = {
       taskSelect: createElementStub(),
       dtypeSelect: createElementStub('q4'),
+      deviceSelect: createElementStub('webgpu'),
       maxNewTokens: createElementStub('128'),
       maxNewTokensValue: createElementStub(''),
       inputText: createElementStub(),
@@ -61,6 +62,7 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.taskSelect.value).toBe('generation');
     expect(elements.inputText.placeholder).toBe('Once upon a time');
     expect(elements.dtypeSelect.value).toBe('q4');
+    expect(elements.deviceSelect.value).toBe('webgpu');
     expect(elements.runButton.listeners.click).toBeTypeOf('function');
     expect(elements.clearButton.listeners.click).toBeTypeOf('function');
     expect(elements.taskSelect.listeners.change).toBeTypeOf('function');
@@ -152,6 +154,31 @@ describe('main.js initApp (UI integration)', () => {
     expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
       dtype: 'fp16',
       device: 'webgpu'
+    });
+  });
+
+  it('deviceを変更すると別pipelineとして初期化する', async () => {
+    const pipe = vi.fn().mockResolvedValue([{ generated_text: 'ok' }]);
+    pipelineMock.mockResolvedValue(pipe);
+
+    const { initApp } = await import('./main.js');
+    initApp(global.document);
+
+    elements.inputText.value = 'first';
+    await elements.runButton.listeners.click();
+
+    elements.deviceSelect.value = 'wasm';
+    elements.inputText.value = 'second';
+    await elements.runButton.listeners.click();
+
+    expect(pipelineMock).toHaveBeenCalledTimes(2);
+    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+      dtype: 'q4',
+      device: 'webgpu'
+    });
+    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+      dtype: 'q4',
+      device: 'wasm'
     });
   });
 
