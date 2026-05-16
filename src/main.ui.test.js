@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pipelineMock = vi.fn();
+const textStreamerMock = vi.fn(function tokenizerAwareStreamer(_tokenizer, options = {}) {
+  return { options };
+});
 
 vi.mock('@huggingface/transformers', () => ({
-  pipeline: pipelineMock
+  pipeline: pipelineMock,
+  TextStreamer: textStreamerMock
 }));
 
 function createElementStub(initial = '') {
@@ -84,7 +88,14 @@ describe('main.js initApp (UI integration)', () => {
       dtype: 'q4',
       device: 'webgpu'
     });
-    expect(pipe).toHaveBeenCalledWith('hello', { max_new_tokens: 128 });
+    expect(textStreamerMock).toHaveBeenCalledTimes(1);
+    expect(pipe).toHaveBeenCalledWith(
+      'hello',
+      expect.objectContaining({
+        max_new_tokens: 128,
+        streamer: expect.objectContaining({ options: expect.objectContaining({ skip_prompt: true }) })
+      })
+    );
     expect(elements.outputText.textContent).toBe('ok');
     expect(elements.statusText.textContent).toMatch(/^Done \(\d+\.\d{2}s\)$/);
 
