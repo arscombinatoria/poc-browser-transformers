@@ -16,7 +16,17 @@ describe('main.js unit helpers', () => {
     expect(buildErrorMessage('unknown failure')).toBe('エラーが発生しました: unknown failure');
   });
 
+  it('例外メッセージはnullish値でも失敗理由を文字列化する', () => {
+    expect(buildErrorMessage(null)).toBe('エラーが発生しました: null');
+    expect(buildErrorMessage(undefined)).toBe('エラーが発生しました: undefined');
+  });
+
   it('経過秒数は小数点2桁で表示する', () => {
     expect(formatElapsedSeconds(1234)).toBe('1.23');
+  });
+
+  it('経過秒数は0ミリ秒と丸め境界でも小数点2桁を維持する', () => {
+    expect(formatElapsedSeconds(0)).toBe('0.00');
+    expect(formatElapsedSeconds(999)).toBe('1.00');
   });
 });

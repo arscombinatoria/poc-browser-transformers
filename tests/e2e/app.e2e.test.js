@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    window.__TEST_PIPELINE__ = async (task, model) => {
+    window.__TEST_PIPELINE__ = async (task) => {
       if (task === 'text-generation') {
         return async (text) => [{ generated_text: `${text}...generated` }];
       }
@@ -34,7 +34,7 @@ test('実行ボタンで推論結果が表示される', async ({ page }) => {
   await page.fill('#inputText', 'hello world');
   await page.click('#runButton');
 
-  await expect(page.locator('#statusText')).toHaveText('Done');
+  await expect(page.locator('#statusText')).toHaveText(/^Done \(\d+\.\d{2}s\)$/);
   await expect(page.locator('#outputText')).toContainText('hello world...generated');
   await expect(page.locator('#errorText')).toHaveText('');
 });
@@ -51,4 +51,16 @@ test('クリアボタンで状態が初期化される', async ({ page }) => {
   await expect(page.locator('#statusText')).toHaveText('Idle');
   await expect(page.locator('#outputText')).toHaveText('');
   await expect(page.locator('#errorText')).toHaveText('');
+});
+
+
+test('空白入力で実行すると推論せずエラーが表示される', async ({ page }) => {
+  await page.goto('/');
+
+  await page.fill('#inputText', '   ');
+  await page.click('#runButton');
+
+  await expect(page.locator('#statusText')).toHaveText('Idle');
+  await expect(page.locator('#outputText')).toHaveText('');
+  await expect(page.locator('#errorText')).toHaveText('入力テキストを入力してください。');
 });
