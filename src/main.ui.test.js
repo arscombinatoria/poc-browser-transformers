@@ -29,6 +29,7 @@ function createElementStub(initial = '') {
 
 describe('main.js initApp (UI integration)', () => {
   let elements;
+  let documentLike;
 
   beforeEach(() => {
     vi.resetModules();
@@ -48,7 +49,8 @@ describe('main.js initApp (UI integration)', () => {
       errorText: createElementStub('')
     };
 
-    global.document = {
+    delete global.document;
+    documentLike = {
       getElementById(id) {
         return elements[id];
       },
@@ -60,9 +62,9 @@ describe('main.js initApp (UI integration)', () => {
 
   it('初期化時にDOM要素へイベントを接続し初期状態を設定する', async () => {
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
-    expect(elements.taskSelect.options).toHaveLength(10);
+    expect(elements.taskSelect.options).toHaveLength(5);
     expect(elements.taskSelect.value).toBe('generation');
     expect(elements.inputText.placeholder).toBe('Once upon a time');
     expect(elements.dtypeSelect.value).toBe('q4');
@@ -74,12 +76,25 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.maxNewTokensValue.textContent).toBe('128');
   });
 
+  it('max_new_tokensラベルは入力値の最小値と最大値を反映する', async () => {
+    const { initApp } = await import('./main.js');
+    initApp(documentLike);
+
+    elements.maxNewTokens.value = '16';
+    elements.maxNewTokens.listeners.input();
+    expect(elements.maxNewTokensValue.textContent).toBe('16');
+
+    elements.maxNewTokens.value = '1024';
+    elements.maxNewTokens.listeners.input();
+    expect(elements.maxNewTokensValue.textContent).toBe('1024');
+  });
+
   it('イベントフロー: clickで推論実行、change/clearで表示をリセットする', async () => {
     const pipe = vi.fn().mockResolvedValue([{ generated_text: 'ok' }]);
     pipelineMock.mockResolvedValue(pipe);
 
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
     elements.inputText.value = 'hello';
     await elements.runButton.listeners.click();
@@ -115,9 +130,9 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.statusText.textContent).toBe('Idle');
   });
 
-  it('入力が空の場合は推論せずエラーを表示する', async () => {
+  it('入力が空白だけの場合は推論せずエラーを表示する', async () => {
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
     elements.inputText.value = '    ';
     await elements.runButton.listeners.click();
@@ -126,12 +141,12 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.errorText.textContent).toBe('入力テキストを入力してください。');
   });
 
-  it('pipelineが失敗した場合はエラー状態になりボタンを再有効化する', async () => {
+  it('pipeline初期化が失敗した場合はエラー状態になりボタンを再有効化する', async () => {
     pipelineMock.mockRejectedValue(new Error('load failed'));
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
     elements.inputText.value = 'hello';
     await elements.runButton.listeners.click();
@@ -139,6 +154,26 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.statusText.textContent).toBe('Error');
     expect(elements.errorText.textContent).toContain('load failed');
     expect(elements.runButton.disabled).toBe(false);
+    expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
+    errorSpy.mockRestore();
+  });
+
+  it('推論実行が失敗した場合はエラー状態になりボタンを再有効化する', async () => {
+    const pipe = vi.fn().mockRejectedValue(new Error('inference failed'));
+    pipelineMock.mockResolvedValue(pipe);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { initApp } = await import('./main.js');
+    initApp(documentLike);
+
+    elements.inputText.value = 'hello';
+    await elements.runButton.listeners.click();
+
+    expect(elements.statusText.textContent).toBe('Error');
+    expect(elements.errorText.textContent).toBe('エラーが発生しました: inference failed');
+    expect(elements.outputText.textContent).toBe('');
+    expect(elements.runButton.disabled).toBe(false);
+    expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
     errorSpy.mockRestore();
   });
 
@@ -148,7 +183,7 @@ describe('main.js initApp (UI integration)', () => {
     pipelineMock.mockResolvedValue(pipe);
 
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
     elements.inputText.value = 'first';
     await elements.runButton.listeners.click();
@@ -173,7 +208,7 @@ describe('main.js initApp (UI integration)', () => {
     pipelineMock.mockResolvedValue(pipe);
 
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
     elements.inputText.value = 'first';
     await elements.runButton.listeners.click();
@@ -198,7 +233,7 @@ describe('main.js initApp (UI integration)', () => {
     pipelineMock.mockResolvedValue(pipe);
 
     const { initApp } = await import('./main.js');
-    initApp(global.document);
+    initApp(documentLike);
 
     elements.inputText.value = 'first';
     await elements.runButton.listeners.click();
