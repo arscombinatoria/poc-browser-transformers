@@ -6,7 +6,7 @@ const TASK_CONFIGS = {
   generation: {
     label: 'Text Generation',
     task: 'text-generation',
-    model: 'onnx-community/Qwen2.5-0.5B-Instruct',
+    model: 'onnx-community/Qwen3-0.6B-ONNX',
     defaultInput: 'Once upon a time'
   },
   generationSmol: {

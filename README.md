@@ -8,7 +8,7 @@ Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラ�
 
 - ブラウザのみで推論を実行（サーバーサイド不要）
 - 以下タスクをUIから切り替え可能
-  - Text Generation（`onnx-community/Qwen2.5-0.5B-Instruct`）
+  - Text Generation（`onnx-community/Qwen3-0.6B-ONNX`）
   - Text Generation（`HuggingFaceTB/SmolLM2-360M-Instruct`）
   - Text Generation（`onnx-community/Bonsai-1.7B-ONNX`）
   - Summarization（`Xenova/distilbart-cnn-6-6`）

@@ -65,6 +65,7 @@ describe('main.js initApp (UI integration)', () => {
     initApp(documentLike);
 
     expect(elements.taskSelect.options).toHaveLength(5);
+    expect(elements.taskSelect.options[0].textContent).toContain('onnx-community/Qwen3-0.6B-ONNX');
     expect(elements.taskSelect.value).toBe('generation');
     expect(elements.inputText.placeholder).toBe('Once upon a time');
     expect(elements.dtypeSelect.value).toBe('q4');
@@ -99,7 +100,7 @@ describe('main.js initApp (UI integration)', () => {
     elements.inputText.value = 'hello';
     await elements.runButton.listeners.click();
 
-    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
       dtype: 'q4',
       device: 'webgpu'
     });
@@ -193,11 +194,11 @@ describe('main.js initApp (UI integration)', () => {
     await elements.runButton.listeners.click();
 
     expect(pipelineMock).toHaveBeenCalledTimes(2);
-    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
       dtype: 'q4',
       device: 'webgpu'
     });
-    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
       dtype: 'fp16',
       device: 'webgpu'
     });
@@ -218,11 +219,11 @@ describe('main.js initApp (UI integration)', () => {
     await elements.runButton.listeners.click();
 
     expect(pipelineMock).toHaveBeenCalledTimes(2);
-    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
       dtype: 'q4',
       device: 'webgpu'
     });
-    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
       dtype: 'q4',
       device: 'wasm'
     });
