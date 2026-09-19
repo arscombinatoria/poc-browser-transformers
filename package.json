@@ -22,7 +22,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.1",
     "coverage-badges": "^1.0.7",
     "jsdom": "^30.0.1",
     "vitest": "^5.0.0",
