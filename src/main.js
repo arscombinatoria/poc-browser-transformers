@@ -7,19 +7,19 @@ const TASK_CONFIGS = {
     label: 'Text Generation',
     task: 'text-generation',
     model: 'onnx-community/Qwen3-0.6B-ONNX',
-    defaultInput: 'Once upon a time'
+    defaultInput: 'こんにちは。何ができますか？'
   },
   generationSmol: {
     label: 'Text Generation',
     task: 'text-generation',
     model: 'HuggingFaceTB/SmolLM2-360M-Instruct',
-    defaultInput: 'Once upon a time'
+    defaultInput: 'こんにちは。何ができますか？'
   },
   generationBonsai: {
     label: 'Text Generation',
     task: 'text-generation',
     model: 'onnx-community/Bonsai-1.7B-ONNX',
-    defaultInput: 'Once upon a time'
+    defaultInput: 'こんにちは。何ができますか？'
   },
   summarization: {
     label: 'Summarization',
@@ -168,7 +168,8 @@ export function initApp(documentLike, options = {}) {
         };
       }
 
-      const result = await pipe(text, generationOptions);
+      const input = taskKey.startsWith('generation') ? [{ role: 'user', content: text }] : text;
+      const result = await pipe(input, generationOptions);
       const elapsedMilliseconds = (globalThis.performance?.now?.() ?? Date.now()) - startTime;
       setOutput(formatDisplayResult(taskKey, result));
       setStatus(`Done (${formatElapsedSeconds(elapsedMilliseconds)}s)`);

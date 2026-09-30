@@ -5,7 +5,11 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     window.__TEST_PIPELINE__ = async (task) => {
       if (task === 'text-generation') {
-        return async (text) => [{ generated_text: `${text}...generated` }];
+        const pipe = async (messages) => [{
+          generated_text: [...messages, { role: 'assistant', content: `回答: ${messages.at(-1).content}` }]
+        }];
+        pipe.tokenizer = { all_special_ids: [] };
+        return pipe;
       }
 
       if (task === 'summarization') {
@@ -20,7 +24,7 @@ test.beforeEach(async ({ page }) => {
 test('タスク選択でプレースホルダーが切り替わる', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('#inputText')).toHaveAttribute('placeholder', 'Once upon a time');
+  await expect(page.locator('#inputText')).toHaveAttribute('placeholder', 'こんにちは。何ができますか？');
   await page.selectOption('#taskSelect', 'summarization');
   await expect(page.locator('#inputText')).toHaveAttribute(
     'placeholder',
@@ -35,7 +39,7 @@ test('実行ボタンで推論結果が表示される', async ({ page }) => {
   await page.click('#runButton');
 
   await expect(page.locator('#statusText')).toHaveText(/^Done \(\d+\.\d{2}s\)$/);
-  await expect(page.locator('#outputText')).toContainText('hello world...generated');
+  await expect(page.locator('#outputText')).toHaveText('回答: hello world');
   await expect(page.locator('#errorText')).toHaveText('');
 });
 

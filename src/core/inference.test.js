@@ -11,6 +11,28 @@ describe('inference formatters', () => {
     expect(formatGenerationResult([{ generated_text: 'Hello world' }])).toBe('Hello world');
   });
 
+  it('チャット結果では最後のassistant本文だけを表示する', () => {
+    expect(formatGenerationResult([{ generated_text: [
+      { role: 'user', content: '以前の質問' },
+      { role: 'assistant', content: '以前の回答' },
+      { role: 'user', content: 'こんにちわ' },
+      { role: 'assistant', content: 'こんにちは。' }
+    ] }])).toBe('こんにちは。');
+  });
+
+  it('空のassistant本文を保持する', () => {
+    expect(formatGenerationResult([{ generated_text: [{ role: 'assistant', content: '' }] }])).toBe('');
+  });
+
+  it.each([
+    { messages: [] },
+    { messages: [{ role: 'user', content: '質問' }] },
+    { messages: [{ role: 'assistant', content: null }] }
+  ])('assistant本文が取得できないチャット結果をJSONで表示する: %j', ({ messages }) => {
+    const result = [{ generated_text: messages }];
+    expect(formatGenerationResult(result)).toBe(JSON.stringify(result, null, 2));
+  });
+
   it('formatGenerationResultはfallbackでJSON文字列を返す', () => {
     expect(formatGenerationResult({ foo: 'bar' })).toBe('{\n  "foo": "bar"\n}');
   });

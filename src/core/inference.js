@@ -1,6 +1,11 @@
 export function formatGenerationResult(result) {
   const first = Array.isArray(result) ? result[0] : result;
-  return first?.generated_text ?? JSON.stringify(result, null, 2);
+  const generatedText = first?.generated_text;
+  if (Array.isArray(generatedText)) {
+    const assistant = generatedText.findLast((message) => message?.role === 'assistant');
+    return typeof assistant?.content === 'string' ? assistant.content : JSON.stringify(result, null, 2);
+  }
+  return generatedText ?? JSON.stringify(result, null, 2);
 }
 
 export function formatSummaryResult(result) {

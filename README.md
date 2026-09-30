@@ -13,6 +13,9 @@ Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラ�
   - Text Generation（`onnx-community/Bonsai-1.7B-ONNX`）
   - Summarization（`Xenova/distilbart-cnn-6-6`）
   - Sentiment Classification（`Xenova/distilbert-base-uncased-finetuned-sst-2-english`）
+- テキスト生成は入力を `user` メッセージとして渡し、モデルのチャットテンプレートを適用
+  - 各実行は独立した1回の質問・回答（会話履歴は引き継ぎません）
+  - 出力には最後の `assistant` メッセージの本文を表示
 - 初回実行時に Hugging Face Hub からモデルを取得
 - 同一タスクの pipeline はメモリキャッシュを再利用
 - `Clear` ボタンで入力・出力・ステータスを初期化

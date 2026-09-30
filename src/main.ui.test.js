@@ -67,7 +67,7 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.taskSelect.options).toHaveLength(5);
     expect(elements.taskSelect.options[0].textContent).toContain('onnx-community/Qwen3-0.6B-ONNX');
     expect(elements.taskSelect.value).toBe('generation');
-    expect(elements.inputText.placeholder).toBe('Once upon a time');
+    expect(elements.inputText.placeholder).toBe('こんにちは。何ができますか？');
     expect(elements.dtypeSelect.value).toBe('q4');
     expect(elements.deviceSelect.value).toBe('webgpu');
     expect(elements.runButton.listeners.click).toBeTypeOf('function');
@@ -106,7 +106,7 @@ describe('main.js initApp (UI integration)', () => {
     });
     expect(textStreamerMock).toHaveBeenCalledTimes(1);
     expect(pipe).toHaveBeenCalledWith(
-      'hello',
+      [{ role: 'user', content: 'hello' }],
       expect.objectContaining({
         max_new_tokens: 128,
         streamer: expect.objectContaining({ options: expect.objectContaining({ skip_prompt: true }) })
@@ -129,6 +129,38 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.outputText.textContent).toBe('');
     expect(elements.errorText.textContent).toBe('');
     expect(elements.statusText.textContent).toBe('Idle');
+  });
+
+  it.each(['generation', 'generationSmol', 'generationBonsai'])('%sは単発のuserメッセージを渡してassistant本文を表示する', async (taskKey) => {
+    const pipe = vi.fn().mockResolvedValue([{ generated_text: [
+      { role: 'user', content: 'こんにちわ' },
+      { role: 'assistant', content: 'こんにちは。' }
+    ] }]);
+    pipelineMock.mockResolvedValue(pipe);
+    const { initApp } = await import('./main.js');
+    initApp(documentLike);
+    elements.taskSelect.value = taskKey;
+    elements.inputText.value = '  こんにちわ  ';
+    await elements.runButton.listeners.click();
+    expect(pipe).toHaveBeenCalledWith([{ role: 'user', content: 'こんにちわ' }], {
+      max_new_tokens: 128,
+      streamer: expect.any(Object)
+    });
+    expect(elements.outputText.textContent).toBe('こんにちは。');
+    elements.inputText.value = '次の質問';
+    await elements.runButton.listeners.click();
+    expect(pipe).toHaveBeenLastCalledWith([{ role: 'user', content: '次の質問' }], expect.any(Object));
+  });
+
+  it.each(['summarization', 'classification'])('%sは文字列入力を維持する', async (taskKey) => {
+    const pipe = vi.fn().mockResolvedValue([{ summary_text: '要約', label: 'POSITIVE', score: 1 }]);
+    pipelineMock.mockResolvedValue(pipe);
+    const { initApp } = await import('./main.js');
+    initApp(documentLike);
+    elements.taskSelect.value = taskKey;
+    elements.inputText.value = 'example text';
+    await elements.runButton.listeners.click();
+    expect(pipe).toHaveBeenCalledWith('example text', undefined);
   });
 
   it('入力が空白だけの場合は推論せずエラーを表示する', async () => {
