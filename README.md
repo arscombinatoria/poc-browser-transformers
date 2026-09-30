@@ -8,9 +8,9 @@ Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラ�
 
 - ブラウザのみで推論を実行（サーバーサイド不要）
 - 以下タスクをUIから切り替え可能
-  - Text Generation（`onnx-community/Qwen3-0.6B-ONNX`）
+  - Text Generation（`onnx-community/Qwen3.5-0.8B-Text-ONNX`）
   - Text Generation（`HuggingFaceTB/SmolLM2-360M-Instruct`）
-  - Text Generation（`onnx-community/Bonsai-1.7B-ONNX`）
+  - Text Generation（`onnx-community/Ternary-Bonsai-1.7B-ONNX`）
   - Summarization（`Xenova/distilbart-cnn-6-6`）
   - Sentiment Classification（`Xenova/distilbert-base-uncased-finetuned-sst-2-english`）
 - テキスト生成は入力を `user` メッセージとして渡し、モデルのチャットテンプレートを適用
@@ -19,6 +19,18 @@ Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラ�
 - 初回実行時に Hugging Face Hub からモデルを取得
 - 同一タスクの pipeline はメモリキャッシュを再利用
 - `Clear` ボタンで入力・出力・ステータスを初期化
+
+## 生成モデルの更新（2026-10-01）
+
+| 系列 | 採用モデル | 判断 |
+| --- | --- | --- |
+| Qwen | [Qwen3.5-0.8B-Text-ONNX](https://huggingface.co/onnx-community/Qwen3.5-0.8B-Text-ONNX) | Qwen3-0.6Bから更新。画像用の重みを含まないテキスト専用版を使用 |
+| SmolLM | [SmolLM2-360M-Instruct](https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct) | 維持。[後継のSmolLM3](https://huggingface.co/HuggingFaceTB/SmolLM3-3B-ONNX)は3Bで、360Mの約8.3倍のパラメータ数になるため |
+| Bonsai | [Ternary-Bonsai-1.7B-ONNX](https://huggingface.co/onnx-community/Ternary-Bonsai-1.7B-ONNX) | 同規模の新しいternary版へ更新。公開済みのq2 / q2f16を選択可能（既定はq2） |
+
+Hub上のONNXグラフと外部重みファイルの合計は、Qwenのq4が約919 MBから約551 MB、Bonsaiの既定設定がq4の約1,119 MBからq2の約506 MBになります（10進表記、トークナイザー等を除く）。これはダウンロード容量であり、実行時メモリ使用量や速度の保証ではありません。
+
+既存のTransformers.js 4.3系は更新先のモデル型とq2形式に対応しています。Bonsaiから他モデルへ切り替えた際は、非対応のq2設定をq4へ戻します。q2f16は半精度演算への対応が必要です。端末ごとのWebGPU / WASMでの実推論速度・品質は別途確認してください。
 
 ## 技術スタック
 

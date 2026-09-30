@@ -18,6 +18,9 @@ function createElementStub(initial = '') {
     disabled: false,
     options: [],
     listeners: {},
+    replaceChildren() {
+      this.options = [];
+    },
     append(option) {
       this.options.push(option);
     },
@@ -65,7 +68,7 @@ describe('main.js initApp (UI integration)', () => {
     initApp(documentLike);
 
     expect(elements.taskSelect.options).toHaveLength(5);
-    expect(elements.taskSelect.options[0].textContent).toContain('onnx-community/Qwen3-0.6B-ONNX');
+    expect(elements.taskSelect.options[0].textContent).toContain('onnx-community/Qwen3.5-0.8B-Text-ONNX');
     expect(elements.taskSelect.value).toBe('generation');
     expect(elements.inputText.placeholder).toBe('こんにちは。何ができますか？');
     expect(elements.dtypeSelect.value).toBe('q4');
@@ -75,6 +78,32 @@ describe('main.js initApp (UI integration)', () => {
     expect(elements.taskSelect.listeners.change).toBeTypeOf('function');
     expect(elements.maxNewTokens.listeners.input).toBeTypeOf('function');
     expect(elements.maxNewTokensValue.textContent).toBe('128');
+  });
+
+  it('Bonsaiでは公開済みの2bit形式のみを選べ、他のモデルに戻すとq4へ戻る', async () => {
+    const pipe = vi.fn().mockResolvedValue([{ generated_text: 'ok' }]);
+    pipelineMock.mockResolvedValue(pipe);
+    const { initApp } = await import('./main.js');
+    initApp(documentLike);
+    elements.dtypeSelect.value = 'fp32';
+    elements.taskSelect.value = 'generationBonsai';
+    elements.taskSelect.listeners.change();
+    expect(elements.dtypeSelect.options.map((option) => option.value)).toEqual(['q2', 'q2f16']);
+    expect(elements.dtypeSelect.value).toBe('q2');
+    elements.inputText.value = 'hello';
+    await elements.runButton.listeners.click();
+    expect(pipelineMock).toHaveBeenLastCalledWith('text-generation', 'onnx-community/Ternary-Bonsai-1.7B-ONNX', {
+      dtype: 'q2', device: 'webgpu'
+    });
+    elements.dtypeSelect.value = 'q2f16';
+    await elements.runButton.listeners.click();
+    expect(pipelineMock).toHaveBeenLastCalledWith('text-generation', 'onnx-community/Ternary-Bonsai-1.7B-ONNX', {
+      dtype: 'q2f16', device: 'webgpu'
+    });
+    elements.taskSelect.value = 'generation';
+    elements.taskSelect.listeners.change();
+    expect(elements.dtypeSelect.options.map((option) => option.value)).toEqual(['q4', 'q8', 'fp16', 'fp32']);
+    expect(elements.dtypeSelect.value).toBe('q4');
   });
 
   it('max_new_tokensラベルは入力値の最小値と最大値を反映する', async () => {
@@ -100,7 +129,7 @@ describe('main.js initApp (UI integration)', () => {
     elements.inputText.value = 'hello';
     await elements.runButton.listeners.click();
 
-    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
+    expect(pipelineMock).toHaveBeenCalledWith('text-generation', 'onnx-community/Qwen3.5-0.8B-Text-ONNX', {
       dtype: 'q4',
       device: 'webgpu'
     });
@@ -226,11 +255,11 @@ describe('main.js initApp (UI integration)', () => {
     await elements.runButton.listeners.click();
 
     expect(pipelineMock).toHaveBeenCalledTimes(2);
-    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen3.5-0.8B-Text-ONNX', {
       dtype: 'q4',
       device: 'webgpu'
     });
-    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen3.5-0.8B-Text-ONNX', {
       dtype: 'fp16',
       device: 'webgpu'
     });
@@ -251,11 +280,11 @@ describe('main.js initApp (UI integration)', () => {
     await elements.runButton.listeners.click();
 
     expect(pipelineMock).toHaveBeenCalledTimes(2);
-    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(1, 'text-generation', 'onnx-community/Qwen3.5-0.8B-Text-ONNX', {
       dtype: 'q4',
       device: 'webgpu'
     });
-    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen3-0.6B-ONNX', {
+    expect(pipelineMock).toHaveBeenNthCalledWith(2, 'text-generation', 'onnx-community/Qwen3.5-0.8B-Text-ONNX', {
       dtype: 'q4',
       device: 'wasm'
     });

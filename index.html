@@ -27,7 +27,7 @@
         <select id="taskSelect"></select>
 
         <label for="dtypeSelect">dtype（量子化・精度の設定）</label>
-        <p class="field-help">推論時の計算精度です。軽さ重視なら q4 / q8、品質重視なら fp16 / fp32 を選びます。</p>
+        <p class="field-help">推論時の計算精度です。モデルに対応した設定を表示します。軽さ重視なら q2 / q4 / q8、品質重視なら fp16 / fp32 を選びます。q2f16 は2bit重みと半精度演算を使用します。</p>
         <select id="dtypeSelect">
           <option value="q4" selected>q4</option>
           <option value="q8">q8</option>
