@@ -6,7 +6,7 @@ const TASK_CONFIGS = {
   generation: {
     label: 'Text Generation',
     task: 'text-generation',
-    model: 'onnx-community/Qwen3-0.6B-ONNX',
+    model: 'onnx-community/Qwen3.5-0.8B-Text-ONNX',
     defaultInput: 'こんにちは。何ができますか？'
   },
   generationSmol: {
@@ -18,7 +18,8 @@ const TASK_CONFIGS = {
   generationBonsai: {
     label: 'Text Generation',
     task: 'text-generation',
-    model: 'onnx-community/Bonsai-1.7B-ONNX',
+    model: 'onnx-community/Ternary-Bonsai-1.7B-ONNX',
+    dtypes: ['q2', 'q2f16'],
     defaultInput: 'こんにちは。何ができますか？'
   },
   summarization: {
@@ -94,8 +95,26 @@ export function initApp(documentLike, options = {}) {
     inputText.placeholder = TASK_CONFIGS[key].defaultInput;
   }
 
+  function getSupportedDtypes() {
+    return TASK_CONFIGS[getCurrentTaskKey()].dtypes ?? ['q4', 'q8', 'fp16', 'fp32'];
+  }
+
   function getCurrentDtype() {
-    return dtypeSelect?.value || 'q4';
+    const supported = getSupportedDtypes();
+    return supported.includes(dtypeSelect?.value) ? dtypeSelect.value : supported[0];
+  }
+
+  function populateDtypeSelect() {
+    if (!dtypeSelect) return;
+    const selected = getCurrentDtype();
+    dtypeSelect.replaceChildren();
+    getSupportedDtypes().forEach((dtype) => {
+      const option = documentLike.createElement('option');
+      option.value = dtype;
+      option.textContent = dtype;
+      dtypeSelect.append(option);
+    });
+    dtypeSelect.value = selected;
   }
 
   function getCurrentDevice() {
@@ -194,11 +213,13 @@ export function initApp(documentLike, options = {}) {
     setError('');
     setStatus('Idle');
     applyDefaultInput();
+    populateDtypeSelect();
   });
   maxNewTokensInput?.addEventListener('input', syncMaxNewTokensLabel);
 
   populateTaskSelect();
   taskSelect.value = 'generation';
+  populateDtypeSelect();
   applyDefaultInput();
   syncMaxNewTokensLabel();
 }
