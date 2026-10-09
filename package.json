@@ -18,7 +18,7 @@
   "type": "module",
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",
-    "vite": "^8.3.2"
+    "vite": "^8.3.3"
   },
   "private": true,
   "devDependencies": {
