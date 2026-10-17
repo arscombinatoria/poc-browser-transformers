@@ -28,10 +28,16 @@ Vite・vanilla JavaScript・Transformers.jsで、ブラウザ内AI推論を試�
 
 Node.js 24（CIと同じバージョン）とnpmを用意し、リポジトリのルートで実行します。
 
+ローカル開発では、開発サーバーを起動し、表示されたURLを開きます。
+
 ```bash
 npm install
-npm run dev      # 表示されたローカルURLを開きます
-# 本番ビルドとローカル確認
+npm run dev
+```
+
+本番ビルドを確認する場合は、開発サーバーをCtrl+Cで停止してから実行します。
+
+```bash
 npm run build
 npm run preview
 ```
