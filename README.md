@@ -2,113 +2,75 @@
 
 ![Coverage](coverage/badges.svg)
 
-Vite + vanilla JavaScript + `@huggingface/transformers` を使った、**ブラウザ内AI推論**の最小PoCです。サーバーサイドやAPIキーなしで、テキスト生成・要約・感情分類を 1 画面で試せます。
+Vite・vanilla JavaScript・Transformers.jsで、ブラウザ内AI推論を試すPoCです。推論用サーバーやAPIキーなしで、テキスト生成・要約・感情分類を1画面で試せます。
 
-## 主な機能
+[GitHub Pagesでデモを試す](https://arscombinatoria.github.io/poc-browser-transformers/)
 
-- ブラウザのみで推論を実行（サーバーサイド不要）
-- 以下タスクをUIから切り替え可能
-  - Text Generation（`onnx-community/Qwen3.5-0.8B-Text-ONNX`）
-  - Text Generation（`HuggingFaceTB/SmolLM2-360M-Instruct`）
-  - Text Generation（`onnx-community/Ternary-Bonsai-1.7B-ONNX`）
-  - Summarization（`Xenova/distilbart-cnn-6-6`）
-  - Sentiment Classification（`Xenova/distilbert-base-uncased-finetuned-sst-2-english`）
-- テキスト生成は入力を `user` メッセージとして渡し、モデルのチャットテンプレートを適用
-  - 各実行は独立した1回の質問・回答（会話履歴は引き継ぎません）
-  - 出力には最後の `assistant` メッセージの本文を表示
-- 初回実行時に Hugging Face Hub からモデルを取得
-- 同一タスクの pipeline はメモリキャッシュを再利用
-- `Clear` ボタンで入力・出力・ステータスを初期化
+## Features
 
-## 生成モデルの更新（2026-10-01）
+- ブラウザ内でテキスト生成・要約・感情分類を実行できます。
+- WebGPU / WASMと、モデルに応じた量子化・精度を選択できます。
+- テキスト生成はストリーミング表示に対応します。モデルのチャットテンプレートを使い、毎回独立した質問として処理します。会話履歴は引き継がず、完了時は最後の回答本文を表示します。
 
-| 系列 | 採用モデル | 判断 |
-| --- | --- | --- |
-| Qwen | [Qwen3.5-0.8B-Text-ONNX](https://huggingface.co/onnx-community/Qwen3.5-0.8B-Text-ONNX) | Qwen3-0.6Bから更新。画像用の重みを含まないテキスト専用版を使用 |
-| SmolLM | [SmolLM2-360M-Instruct](https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct) | 維持。[後継のSmolLM3](https://huggingface.co/HuggingFaceTB/SmolLM3-3B-ONNX)は3Bで、360Mの約8.3倍のパラメータ数になるため |
-| Bonsai | [Ternary-Bonsai-1.7B-ONNX](https://huggingface.co/onnx-community/Ternary-Bonsai-1.7B-ONNX) | 同規模の新しいternary版へ更新。公開済みのq2 / q2f16を選択可能（既定はq2） |
+## Supported Models
 
-Hub上のONNXグラフと外部重みファイルの合計は、Qwenのq4が約919 MBから約551 MB、Bonsaiの既定設定がq4の約1,119 MBからq2の約506 MBになります（10進表記、トークナイザー等を除く）。これはダウンロード容量であり、実行時メモリ使用量や速度の保証ではありません。
+| タスク | モデル（Hugging Face） |
+| --- | --- |
+| テキスト生成 | [onnx-community/Qwen3.5-0.8B-Text-ONNX](https://huggingface.co/onnx-community/Qwen3.5-0.8B-Text-ONNX) |
+| テキスト生成 | [HuggingFaceTB/SmolLM2-360M-Instruct](https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct) |
+| テキスト生成 | [onnx-community/Ternary-Bonsai-1.7B-ONNX](https://huggingface.co/onnx-community/Ternary-Bonsai-1.7B-ONNX) |
+| 要約 | [Xenova/distilbart-cnn-6-6](https://huggingface.co/Xenova/distilbart-cnn-6-6) |
+| 感情分類 | [Xenova/distilbert-base-uncased-finetuned-sst-2-english](https://huggingface.co/Xenova/distilbert-base-uncased-finetuned-sst-2-english) |
 
-既存のTransformers.js 4.3系は更新先のモデル型とq2形式に対応しています。Bonsaiから他モデルへ切り替えた際は、非対応のq2設定をq4へ戻します。q2f16は半精度演算への対応が必要です。端末ごとのWebGPU / WASMでの実推論速度・品質は別途確認してください。
+選定理由と旧モデルとの比較は、[モデル選定の記録](docs/model-selection.md)を参照してください。
 
-## 技術スタック
+## Quick Start
 
-- Node.js
-- Vite
-- Vanilla JavaScript
-- HTML / CSS
-- `@huggingface/transformers`
-- Vitest（ユニット/UIテスト）
-- Playwright（E2Eテスト）
-- GitHub Actions / GitHub Pages
+Node.js 24（CIと同じバージョン）とnpmを用意し、リポジトリのルートで実行します。
 
-## セットアップ
-
-### 前提
-
-- Node.js 22 以上
-- npm
-
-### インストール
+ローカル開発では、開発サーバーを起動し、表示されたURLを開きます。
 
 ```bash
 npm install
-```
-
-### 開発サーバー起動
-
-```bash
 npm run dev
 ```
 
-表示されたローカルURLをブラウザで開いて確認してください。
-
-## 使い方
-
-1. タスクを選択（プルダウン）
-2. 入力テキストを記入
-3. `Run Inference` をクリック
-4. 結果・ステータス・エラーメッセージを確認
-
-> 補足: 実装では推論時に `device: 'webgpu'` を指定しています。ブラウザや環境によっては WebGPU 未対応・不安定な場合があります。
-
-## 利用可能な npm scripts
+本番ビルドを確認する場合は、開発サーバーをCtrl+Cで停止してから実行します。
 
 ```bash
-npm run dev              # 開発サーバー
-npm run build            # 本番ビルド
-npm run preview          # 本番ビルドのローカル確認
-npm run test             # Vitest 実行
-npm run test:watch       # Vitest 監視
-npm run coverage         # カバレッジ計測 + バッジ生成（coverage/badges.svg更新）
-npm run test:e2e         # Playwright E2E 実行
-npm run test:e2e:headed  # Playwright E2E（ブラウザ表示あり）
+npm run build
+npm run preview
 ```
 
-## デプロイ（GitHub Pages）
+画面でタスクと設定を選び、テキストを入力して「実行」を押します。「クリア」で入力・出力・ステータス・エラーをリセットできます。
 
-1. `main` ブランチへ push
-2. `.github/workflows/deploy.yml` でビルド＆デプロイ
-3. GitHub Pages の **Build and deployment > Source** を **GitHub Actions** に設定
+開発時には、以下の検証コマンドも利用できます。
 
-### `vite.config.js` の `base` 設定
+```bash
+npm test                 # Vitest（ユニット/UIテスト）
+npm run test:watch       # 監視モード
+npm run coverage         # 計測とcoverage/badges.svgの更新
+npm run test:e2e         # Playwright E2E
+npm run test:e2e:headed  # ブラウザ表示付きE2E
+```
 
-このリポジトリは GitHub Pages のサブパス公開を想定しています。
+## Configuration
 
-- 現在値: `base: '/poc-browser-transformers/'`
+- **実行バックエンド**: WebGPU（既定）/ WASMを選択します。自動切り替えは行わないため、WebGPUが利用できない場合はWASMを選んでください。
+- **dtype（量子化・精度）**: Bonsaiは`q2`（既定）/ `q2f16`、その他は`q4`（既定）/ `q8` / `fp16` / `fp32`をUIで選択できます。モデル変更時に選択中のdtypeが対象外なら既定値へ戻ります。半精度演算を使う`fp16` / `q2f16`など、実行可否はモデルファイルとバックエンド・端末の対応状況にも依存します。
+- **max_new_tokens**: テキスト生成で追加する最大トークン数です。既定は128、16〜1024を16刻みで選択できます。要約・感情分類には適用しません。
 
-リポジトリ名を変更した場合は、`/<新しいリポジトリ名>/` に更新してください。
+推論パイプラインは、タスク（モデル）・dtype・バックエンドの組み合わせごとにメモリ内で再利用します。「クリア」では破棄せず、ページを再読み込みするとリセットされます。
 
-## モデル取得とプライバシー
+## Deployment
 
-- モデルはアプリに同梱せず、実行時に Hugging Face Hub から取得
-- 推論処理はブラウザ内で完結し、入力テキストを外部LLM APIへ送信しない
-- ただしモデルダウンロードのため、Hugging Face Hub への通信は発生
+GitHub Pagesの **Settings > Pages > Build and deployment > Source** を **GitHub Actions** に設定します。`main`へのpush、または[デプロイワークフロー](.github/workflows/deploy.yml)の手動実行で、ビルドした`dist`を公開します。
 
-## 既知の制約
+[vite.config.js](vite.config.js)の`base`は`/poc-browser-transformers/`です。リポジトリ名を変更する場合は、公開サブパスに合わせて更新してください。
 
-- 端末性能やブラウザ実装差により推論速度が大きく変わる
-- 初回ロード時はモデル取得に時間と通信量が必要
-- 入力サイズが大きい場合、メモリ不足やタイムアウトが発生する可能性あり
-- モデル品質はPoC用途（本番品質は未保証）
+## Limitations & Privacy
+
+- 初回実行時はHugging Face Hubからモデルをダウンロードするため、時間と通信量が必要です。
+- 推論はブラウザ内で実行し、入力テキストを外部LLM APIへ送信しません。ただし、モデル取得のためHubへの通信は発生します。
+- 速度は端末性能・ブラウザ・モデル・設定に左右されます。モデルや入力のサイズによってメモリ不足や処理失敗が起こる場合があり、すべての組み合わせでの動作は保証しません。
+- 本プロジェクトはPoCです。本番用途での品質・速度・安定性は保証しません。
