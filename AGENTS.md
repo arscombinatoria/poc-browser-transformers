@@ -38,7 +38,7 @@
 - Vanilla JavaScript（ES Modules）・Vite・Transformers.jsの構成を維持する。現在の仕様は [README](README.md)、モデル選定の経緯は [選定記録](docs/model-selection.md)、実装は `src/main.js` と `src/core/inference.js` を参照する。
 - 推論はブラウザ内で行い、入力テキストを外部LLM APIへ送らない既存仕様を維持する。モデル取得ではHugging Face Hubへの通信と大きなダウンロードが発生するため、完全オフラインと説明しない。モデル・dtype・バックエンド変更時は、対応ファイルと端末依存の制約を確認する。
 - 非同期処理を変更する場合は、読み込み／推論の失敗表示、実行ボタンの復帰、ストリーミング表示、タスク・dtype・バックエンド別のキャッシュを検証する。クリアは推論のキャンセルやキャッシュ破棄を行わないため、その動作を前提に扱う。
-- 入力・モデル出力・エラーは既存の `textContent` による表示を維持し、未信頼の内容をHTMLとして挿入しない。
+- 入力フォームの値は `value` で取得・更新し、モデル出力・エラーなどのテキスト表示には `textContent` を使用する。未信頼の内容を `innerHTML` などでHTMLとして解釈させない。
 - GitHub Pagesのサブパスは `vite.config.js` の `base` に従う。アセットやURLの変更時は公開サブパスでも動作することを確認する。
 
 ## Testing Rules
