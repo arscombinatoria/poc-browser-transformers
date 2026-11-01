@@ -51,7 +51,7 @@
 - モックは外部I/Oや推論ライブラリとの境界（ネットワーク、ファイルシステム、時刻、外部サービス等）に限定し、内部ロジックの過剰なモックは避ける。
 
 ## Validation
-- Node.jsはREADMEとCIの指定（現在24）に合わせ、依存の再現には `npm ci` を使う。検証コマンドの正本は [package.json](package.json) と各テスト設定とする。現在lint・型チェック用スクリプトはない。
+- Node.jsはREADMEとCIの指定（現在26）に合わせ、依存の再現には `npm ci` を使う。検証コマンドの正本は [package.json](package.json) と各テスト設定とする。現在lint・型チェック用スクリプトはない。
 - 変更に応じて `npm test`（VitestのNode単体テスト／jsdom UIテスト）と `npm run build`（Vite本番ビルド）を選ぶ。Playwrightはビルド済みのpreviewを使うため、必要なブラウザを用意して `npm run build` の後に `npm run test:e2e` を実行する。
 - 通常の自動テストは既存のpipeline差し替えを利用し、実モデル取得やGPUに依存させない。モックによる成功を実モデルの動作確認と混同せず、実モデルを確認した場合はモデル・dtype・バックエンド・ブラウザを報告する。
 - `npm run coverage` はカバレッジ計測に加えて `coverage/badges.svg` を更新する。検証だけを目的に無関係な生成物変更を含めない。ドキュメントのみの変更では記述・相対リンク・`git diff --check` の確認を基本とし、フルビルドやE2Eは原則不要。

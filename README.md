@@ -26,7 +26,7 @@ Vite・vanilla JavaScript・Transformers.jsで、ブラウザ内AI推論を試�
 
 ## Quick Start
 
-Node.js 24（CIと同じバージョン）とnpmを用意し、リポジトリのルートで実行します。
+Node.js 26（CIと同じバージョン）とnpmを用意し、リポジトリのルートで実行します。
 
 ローカル開発では、開発サーバーを起動し、表示されたURLを開きます。
 

@@ -21,6 +21,9 @@
     "vite": "^8.3.5"
   },
   "private": true,
+  "engines": {
+    "node": "^26.0.0"
+  },
   "devDependencies": {
     "@vitest/coverage-v8": "^5.0.5",
     "coverage-badges": "^1.0.7",
